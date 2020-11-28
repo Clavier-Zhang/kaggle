@@ -15,23 +15,31 @@ RANDOM_STATE = 11
 #################################
 # Split data
 df = pd.read_csv(TRAIN_CSV)
-train_df, valid_df = train_test_split(df, test_size=TEST_SIZE, random_state=RANDOM_STATE)
-train_df.reset_index(drop=True, inplace=True)
-valid_df.reset_index(drop=True, inplace=True)
-test_df = pd.read_csv(TEST_CSV)
-# print(train_df.shape, valid_df.shape, test_df.shape)
-# print(train_df.head())
-# print(valid_df.head())
-# print(test_df.head())
+df['category'] = LABEL_ENCODER.transform(df['category'])
+TRAIN_DF, VALID_DF = train_test_split(df, test_size=TEST_SIZE, random_state=RANDOM_STATE)
+TRAIN_DF.reset_index(drop=True, inplace=True)
+VALID_DF.reset_index(drop=True, inplace=True)
+TEST_DF = pd.read_csv(TEST_CSV)
+print(TRAIN_DF.shape, VALID_DF.shape, TEST_DF.shape)
+print(TRAIN_DF.head())
+print(VALID_DF.head())
+print(pd.merge(TRAIN_DF, VALID_DF, how ='inner', on =['id']) )
+# print(TEST_DF.head())
 #################################
+
+
+TRANSFORM_NORMAL = A.Compose([
+    A.Normalize(p=1.0),
+    ToTensorV2(p=1.0),
+])
+
 
 class CnnDataset(Dataset):
 
-    def __init__(self, transforms, X=None, Y=None):
+    def __init__(self, transforms, df):
         self.transforms=transforms
-        
-        self.X = X
-        self.Y = Y
+        self.X = list(df['id'])
+        self.Y = list(df['category'])
 
     def __len__(self):
         return len(self.X)
@@ -47,25 +55,17 @@ class CnnDataset(Dataset):
         
         return image, self.Y[idx]
 
+def CREATE_CNN_TRAIN_ITERATOR(transforms, batch_size):
+    cnn_train_dataset = CnnDataset(transforms, TRAIN_DF)
+    cnn_train_iterator = DataLoader(cnn_train_dataset, batch_size=batch_size, shuffle=True)
+    return cnn_train_iterator
 
-df = pd.read_csv(csv_path)
-
-    X = list(df['id'])
-    y = list(df['category'])
-
-    X_train, X_valid, y_train, y_valid = train_test_split(X, y, test_size=0.2, random_state=11)
-
-    y_train, y_valid = LABEL_ENCODER.transform(y_train), LABEL_ENCODER.transform(y_valid)
+def CREATE_CNN_VALID_ITERATOR(batch_size):
+    cnn_valid_dataset = CnnDataset(TRANSFORM_NORMAL, VALID_DF)
+    cnn_valid_iterator = DataLoader(cnn_valid_dataset, batch_size=batch_size, shuffle=True)
+    return cnn_valid_iterator
 
 
-    train_dataset = CnnDataset(transforms_train, X_train, y_train)
-    test_dataset = CnnDataset(transforms_test, X_valid, y_valid)
-
-    train_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
-    test_dataloader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True)
-    return train_dataloader, test_dataloader
-
-train_dataloader, test_dataloader = create_cnn_iterator("input/train.csv")
 
 
 #################################
