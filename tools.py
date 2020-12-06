@@ -8,6 +8,20 @@ LABEL_ENCODER = LabelEncoder()
 LABEL_ENCODER.fit(pd.read_csv("input/train.csv")['category'])
 
 
+# X encoder
+GENDER_ENCODER = LabelEncoder()
+GENDER_ENCODER.fit(pd.read_csv("input/train.csv")['gender'])
+
+COLOR_ENCODER = LabelEncoder()
+COLOR_ENCODER.fit(pd.read_csv("input/train.csv")['baseColour'])
+
+SEASON_ENCODER = LabelEncoder()
+SEASON_ENCODER.fit(pd.read_csv("input/train.csv")['season'])
+
+USAGE_ENCODER = LabelEncoder()
+USAGE_ENCODER.fit(pd.read_csv("input/train.csv")['usage'])
+
+
 transforms_train = A.Compose([
     # A.Flip(),
     A.ShiftScaleRotate(rotate_limit=1.0, p=0.8),
