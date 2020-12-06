@@ -1,0 +1,7 @@
+1. install required dependencies (use conda, i tried using pip, and pip caused a lot of compatible issues)
+
+2. run notebook rnn.ipynb, cnn.ipynb, nn.ipynb, seperately to get 3 trained models, (require cuda)
+    these models will be saved in ./output
+
+3. run notebook combine.ipynb to combine 3 trained models,
+    at the end of file, it will make predictions on test.csv and save the results in ./output/prediction.csv
